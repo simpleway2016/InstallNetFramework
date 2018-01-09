@@ -12,24 +12,11 @@ HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 
-
-// 此代码模块中包含的函数的前向声明: 
-ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
-LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
-
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+bool isInstalled()
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
-
 	double compareVersion = 4.6;
-	LPWSTR ndpName = L"ndp462.exe";
-	LPWSTR appName = L"app.exe";
+	
+	
 
 	/*LPWSTR *szArgList;
 	int argCount;
@@ -37,9 +24,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	szArgList = CommandLineToArgvW(GetCommandLine(), &argCount);
 	if (szArgList != NULL)
 	{
-		compareVersion = _wtof(szArgList[1]);
-		ndpName = szArgList[2];
-		appName = szArgList[3];
+	compareVersion = _wtof(szArgList[1]);
+	ndpName = szArgList[2];
+	appName = szArgList[3];
 	}	*/
 
 	bool installed = false;
@@ -82,8 +69,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			}
 		}
 	}
+	return installed;
+}
 
-	if (installed == false)
+// 此代码模块中包含的函数的前向声明: 
+ATOM                MyRegisterClass(HINSTANCE hInstance);
+BOOL                InitInstance(HINSTANCE, int);
+LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPWSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
+{
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
+
+	LPWSTR ndpName = L"ndp462.exe";
+	LPWSTR appName = L"app.exe";
+
+	if (isInstalled() == false)
 	{
 		STARTUPINFOW StartInfo;
 		PROCESS_INFORMATION pinfo;
@@ -107,7 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-	if (true)
+	if (isInstalled())
 	{
 		STARTUPINFOW StartInfo;
 		PROCESS_INFORMATION pinfo;
@@ -125,6 +131,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 			NULL,  //指定工作目录
 			&StartInfo, //子进程主窗口如何显示
 			&pinfo); //用于存放新进程的返回信息
+	}
+	else
+	{
+		MessageBoxA(0, ".Net Framework没有成功安装，安装程序将自动退出！", "提示", 0);
 	}
 
 	return 0;
