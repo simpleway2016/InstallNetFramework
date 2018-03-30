@@ -34,6 +34,12 @@ namespace PandaAudioSetup
                 var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat", System.Text.Encoding.UTF8);
                 _currentAppZipVersion = string2Double(content);
             }
+
+            if(System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
+            {
+                this.Title = "熊猫机架";
+                _data.CurrentStatus = Model.Status.UnInstall;
+            }
         }
 
         double string2Double(string content)
@@ -137,6 +143,8 @@ namespace PandaAudioSetup
                         _data.SetupingTitle = "正在创建快捷方式...";
                         ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
                         ShortcutCreator.CreateProgramsShortcut("熊猫机架" , "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+                      
+                        createUnInstall();
                     }
                 }
                 if (_data.CurrentStatus == Model.Status.Setuping)
@@ -144,6 +152,37 @@ namespace PandaAudioSetup
                     _data.CurrentStatus = Model.Status.Finished;
                 }
             });
+        }
+
+        void createUnInstall()
+        {
+            try
+            {
+                if (System.IO.File.Exists($"{_data.Folder}\\UnInstall.exe"))
+                    System.IO.File.Delete($"{_data.Folder}\\UnInstall.exe");
+                System.IO.File.Move(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
+
+                var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
+                if (root.GetSubKeyNames().Contains("PandaAudio") == false)
+                {                    
+                    root.CreateSubKey("PandaAudio");                   
+                }
+                root.Close();
+                root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);
+                root.SetValue("UninstallString", $"{_data.Folder}\\UnInstall.exe");
+                root.SetValue("DisplayIcon", $"{_data.Folder}\\kamil.ico");
+                root.SetValue("DisplayName", "Panda Audio");
+                root.SetValue("Publisher", $"Kamil");
+                root.SetValue("NoModify", 1, Microsoft.Win32.RegistryValueKind.DWord);
+                root.SetValue("NoRepair", 1, Microsoft.Win32.RegistryValueKind.DWord);
+                root.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
+                root.SetValue("InstallLocation", _data.Folder + "\\");
+                root.Close();
+            }
+            catch
+            {
+
+            }
         }
 
         private void Zip_ZipError(Exception err)
@@ -221,6 +260,46 @@ namespace PandaAudioSetup
                 
             }
         }
+
+        private void btnUnInstall_Click(object sender, RoutedEventArgs e)
+        {
+            var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);//InstallLocation
+            var setupFolder = root.GetValue("InstallLocation").ToString();
+            if (setupFolder.EndsWith("\\") == false)
+                setupFolder += "\\";
+
+            root.Close();
+
+            root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
+            root.DeleteSubKey("PandaAudio");
+            root.Close();
+            try
+            {                
+                System.IO.Directory.Delete(setupFolder + "codes", true);
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ShortcutCreator.DeleteShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+            }
+            catch
+            {
+
+            }
+            try
+            {
+                ShortcutCreator.DeleteProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+            }
+            catch
+            {
+
+            }
+            MessageBox.Show(this,"卸载完毕！");
+            Application.Current.Shutdown(0);
+        }
     }
 
     class Model : INotifyPropertyChanged
@@ -248,7 +327,8 @@ namespace PandaAudioSetup
             None = 0,
             Setuping = 1,
             Finished = 2,
-            Downloading = 3
+            Downloading = 3,
+            UnInstall = 4
         }
 
         string _Folder;

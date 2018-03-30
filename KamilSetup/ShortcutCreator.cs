@@ -40,7 +40,17 @@ namespace PandaAudioSetup
             shortcut.IconLocation = string.IsNullOrWhiteSpace(iconLocation) ? targetPath : iconLocation;//设置图标路径
             shortcut.Save();//保存快捷方式
         }
+        public static void DeleteShortcut(string directory, string shortcutName, string targetPath,
+           string description = null, string iconLocation = null)
+        {
+            if (!System.IO.Directory.Exists(directory))
+            {
+                return;
+            }
 
+            string shortcutPath = Path.Combine(directory, string.Format("{0}.lnk", shortcutName));
+            System.IO.File.Delete(shortcutPath);
+        }
         /// <summary>
         /// 创建桌面快捷方式
         /// </summary>
@@ -55,7 +65,12 @@ namespace PandaAudioSetup
             string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);//获取桌面文件夹路径
             CreateShortcut(desktop, shortcutName, targetPath, description, iconLocation);
         }
-
+        public static void DeleteShortcutOnDesktop(string shortcutName, string targetPath,
+           string description = null, string iconLocation = null)
+        {
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);//获取桌面文件夹路径
+            DeleteShortcut(desktop, shortcutName, targetPath, description, iconLocation);
+        }
         /// <summary>
         /// 创建程序菜单快捷方式
         /// </summary>
@@ -73,6 +88,18 @@ namespace PandaAudioSetup
                 System.IO.Directory.CreateDirectory(shortcutPath);
             }
             CreateShortcut(shortcutPath, shortcutName, targetPath, description, iconLocation);
+        }
+        public static void DeleteProgramsShortcut(string folderName, string shortcutName, string targetPath,
+           string description = null, string iconLocation = null)
+        {
+            string shortcutPath = Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\" + folderName;
+            DeleteShortcut(shortcutPath, shortcutName, targetPath, description, iconLocation);
+
+            if (System.IO.Directory.Exists(shortcutPath))
+            {
+                System.IO.Directory.Delete(shortcutPath , true);
+            }
+            
         }
     }
 }

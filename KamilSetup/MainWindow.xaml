@@ -30,6 +30,9 @@
                 <Button Content="立即安装" Width="120" HorizontalAlignment="Center" Height="23" Click="btnSetup_Click"></Button>
             </Grid>            
         </StackPanel>
+        <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[UnInstall]}">
+            <Button Content="卸 载" Margin="0,35,0,0" Width="120" HorizontalAlignment="Center" Height="23" Click="btnUnInstall_Click"></Button>
+        </StackPanel>
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Setuping]}">
             <TextBlock Text="{Binding SetupingTitle}" Margin="10,10,0,0"></TextBlock>
             <ProgressBar Margin="10,10,10,0" Height="10" Maximum="{Binding ProgressTotal}" Value="{Binding ProgressValue}"></ProgressBar>
