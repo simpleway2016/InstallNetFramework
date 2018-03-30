@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KamilSetup"
         mc:Ignorable="d"
-        Title="安装 - 熊猫机架" Height="350" Width="525" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="安装 - 熊猫机架" Height="350" Width="525" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#5091e4" ></Setter>
@@ -33,6 +33,10 @@
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Setuping]}">
             <TextBlock Text="{Binding SetupingTitle}" Margin="10,10,0,0"></TextBlock>
             <ProgressBar Margin="10,10,10,0" Height="10" Maximum="{Binding ProgressTotal}" Value="{Binding ProgressValue}"></ProgressBar>
+        </StackPanel>
+        <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Downloading]}">
+            <TextBlock Text="{Binding DownloadingTitle}" Margin="10,10,0,0"></TextBlock>
+            <ProgressBar Margin="10,10,10,0" Height="10" Maximum="{Binding DownloadingProgressTotal}" Value="{Binding DownloadingProgressValue}"></ProgressBar>
         </StackPanel>
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Finished]}">
 

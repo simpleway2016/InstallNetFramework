@@ -23,10 +23,29 @@ namespace PandaAudioSetup
     public partial class MainWindow : Window
     {
         Model _data;
+        double _currentAppZipVersion = 0;
+        const string Domain = "http://www.pandaaudio.cn:8988";
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = _data = new Model();
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat"))
+            {
+                var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat", System.Text.Encoding.UTF8);
+                _currentAppZipVersion = string2Double(content);
+            }
+        }
+
+        double string2Double(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+                return 0;
+
+            var index = content.IndexOf(".");
+            if (index < 0)
+                return Convert.ToDouble(content);
+            content = content.Replace(".", "");
+            return Convert.ToDouble(content.Insert(index, "."));
         }
 
         private void btnSelectFolder_Click(object sender, RoutedEventArgs e)
@@ -44,7 +63,14 @@ namespace PandaAudioSetup
         {
             if (_data.CurrentStatus == Model.Status.Setuping)
             {
-                MessageBox.Show(this, "正在安装，不能关闭窗口！");
+                MessageBox.Show(this, "正在安装，无法关闭窗口！");
+                e.Cancel = true;
+                return;
+
+            }
+            else if (_data.CurrentStatus == Model.Status.Downloading)
+            {
+                MessageBox.Show(this, "正在下载新版本，无法关闭窗口！");
                 e.Cancel = true;
                 return;
             }
@@ -74,7 +100,7 @@ namespace PandaAudioSetup
                         _data.ProgressValue = 0;
                         foreach (var entry in zip.Entries)
                         {
-                            if(entry.IsDirectory == false)
+                            if (entry.IsDirectory == false)
                             {
                                 try
                                 {
@@ -90,11 +116,11 @@ namespace PandaAudioSetup
                                         if (System.IO.File.Exists(filename))
                                             System.IO.File.Delete(filename);
                                         System.IO.File.WriteAllBytes(filename, content);
-                                        System.IO.File.SetCreationTime(filename , entry.CreationTime);
+                                        System.IO.File.SetCreationTime(filename, entry.CreationTime);
                                         System.IO.File.SetLastWriteTime(filename, entry.LastModified);
                                     }
                                 }
-                                catch(Exception ex)
+                                catch (Exception ex)
                                 {
                                     Zip_ZipError(ex);
                                     break;
@@ -138,6 +164,60 @@ namespace PandaAudioSetup
         {
             Application.Current.Shutdown(0);
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            CheckVersion();
+        }
+
+        async void CheckVersion()
+        {
+            try
+            {
+                System.Net.WebClient client = new System.Net.WebClient();
+                client.Encoding = System.Text.Encoding.UTF8;
+                var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.dat"));
+                if ( _data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
+                {
+                    if (MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo , MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {                       
+                        try
+                        {
+                            _data.DownloadingTitle = "正在下载安装包...";
+                            _data.CurrentStatus = Model.Status.Downloading;
+                            client.DownloadProgressChanged += (s, e) =>
+                            {
+                                _data.DownloadingProgressTotal = e.TotalBytesToReceive;
+                                _data.DownloadingProgressValue = e.BytesReceived;
+
+                                _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)e.BytesReceived) / (1024 * 1024), 2)}M/{Math.Round( ((double)e.TotalBytesToReceive) / (1024 * 1024) , 2)}M";
+                            };
+                            await client.DownloadFileTaskAsync($"{Domain}/app.zip", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
+
+                            if(System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
+                                System.IO.File.Delete($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
+
+                            System.IO.File.Move($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
+                            _currentAppZipVersion = string2Double(content);
+                            System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat",_currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
+                        }
+                        catch(Exception ex)
+                        {
+                            MessageBox.Show(this, ex.Message);
+                        }
+                        finally
+                        {
+                            _data.CurrentStatus = Model.Status.None;
+
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                
+            }
+        }
     }
 
     class Model : INotifyPropertyChanged
@@ -164,7 +244,8 @@ namespace PandaAudioSetup
         {
             None = 0,
             Setuping = 1,
-            Finished = 2
+            Finished = 2,
+            Downloading = 3
         }
 
         string _Folder;
@@ -194,6 +275,19 @@ namespace PandaAudioSetup
                 {
                     _SetupingTitle = value;
                     this.OnChange("SetupingTitle");
+                }
+            }
+        }
+        string _DownloadingTitle;
+        public string DownloadingTitle
+        {
+            get => _DownloadingTitle;
+            set
+            {
+                if (value != _DownloadingTitle)
+                {
+                    _DownloadingTitle = value;
+                    this.OnChange("DownloadingTitle");
                 }
             }
         }
@@ -258,6 +352,42 @@ namespace PandaAudioSetup
                 {
                     _ProgressValue = value;
                     this.OnChange("ProgressValue");
+                }
+
+            }
+        }
+        long _DownloadingProgressTotal = 0;
+        public long DownloadingProgressTotal
+        {
+            get => _DownloadingProgressTotal;
+            set
+            {
+                if (value < _DownloadingProgressValue)
+                {
+                    return;
+                }
+                if (value != _DownloadingProgressTotal)
+                {
+                    _DownloadingProgressTotal = value;
+                    this.OnChange("DownloadingProgressTotal");
+                }
+
+            }
+        }
+        long _DownloadingProgressValue = 0;
+        public long DownloadingProgressValue
+        {
+            get => _DownloadingProgressValue;
+            set
+            {
+                if (value > _DownloadingProgressTotal)
+                {
+                    value = _DownloadingProgressTotal;
+                }
+                if (value != _DownloadingProgressValue)
+                {
+                    _DownloadingProgressValue = value;
+                    this.OnChange("DownloadingProgressValue");
                 }
 
             }
