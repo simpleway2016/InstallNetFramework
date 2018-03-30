@@ -136,6 +136,7 @@ namespace PandaAudioSetup
                     {
                         _data.SetupingTitle = "正在创建快捷方式...";
                         ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+                        ShortcutCreator.CreateProgramsShortcut("熊猫机架" , "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
                     }
                 }
                 if (_data.CurrentStatus == Model.Status.Setuping)
@@ -149,7 +150,7 @@ namespace PandaAudioSetup
         {
             this.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show(this, "写文件发生错误，" + err.Message);
+                MessageBox.Show(this, err.Message, "写入文件时发生错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 _data.CurrentStatus = Model.Status.None;
             });
         }
@@ -200,10 +201,12 @@ namespace PandaAudioSetup
                             System.IO.File.Move($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
                             _currentAppZipVersion = string2Double(content);
                             System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat",_currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
+
+                            MessageBox.Show(this, "新版本下载完毕，请继续安装！", "", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                         catch(Exception ex)
                         {
-                            MessageBox.Show(this, ex.Message);
+                            MessageBox.Show(this, ex.Message, "", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
                         finally
                         {

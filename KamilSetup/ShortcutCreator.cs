@@ -56,5 +56,23 @@ namespace PandaAudioSetup
             CreateShortcut(desktop, shortcutName, targetPath, description, iconLocation);
         }
 
+        /// <summary>
+        /// 创建程序菜单快捷方式
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <param name="shortcutName"></param>
+        /// <param name="targetPath"></param>
+        /// <param name="description"></param>
+        /// <param name="iconLocation"></param>
+        public static void CreateProgramsShortcut(string folderName , string shortcutName, string targetPath,
+            string description = null, string iconLocation = null)
+        {
+            string shortcutPath = Environment.GetFolderPath(Environment.SpecialFolder.Programs) + "\\" + folderName;
+            if (!System.IO.Directory.Exists(shortcutPath ))
+            {
+                System.IO.Directory.CreateDirectory(shortcutPath);
+            }
+            CreateShortcut(shortcutPath, shortcutName, targetPath, description, iconLocation);
+        }
     }
 }
