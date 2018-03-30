@@ -1,0 +1,30 @@
+﻿<Window x:Class="KamilSetup.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KamilSetup"
+        mc:Ignorable="d"
+        Title="安装熊猫机架" Height="350" Width="525" ResizeMode="CanMinimize">
+    <Grid>
+        <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[None]}">
+            <TextBlock Text="安装位置：" Margin="10,10,0,0"></TextBlock>
+            <Grid>
+                <TextBox Margin="10,10,65,0" Height="23" Text="{Binding Folder}"></TextBox>
+                <Button Content="浏览..." Margin="0,10,10,0" Width="50" HorizontalAlignment="Right" Click="btnSelectFolder_Click"></Button>
+            </Grid>
+            <Grid Margin="10,15,10,0" >
+                <CheckBox Content="仅安装相关驱动" Margin="0,5,0,0" IsChecked="{Binding IsSetupDriverOnly}"></CheckBox>
+                <Button Content="立即安装" Width="120" HorizontalAlignment="Center" Height="23" Click="btnSetup_Click"></Button>
+            </Grid>            
+        </StackPanel>
+        <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Setuping]}">
+            <TextBlock Text="{Binding SetupingTitle}" Margin="10,10,0,0"></TextBlock>
+            <ProgressBar Margin="10,10,10,0" Height="10" Maximum="{Binding ProgressTotal}" Value="{Binding ProgressValue}"></ProgressBar>
+        </StackPanel>
+        <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[Finished]}">
+
+            <Button Content="安装完成" Margin="0,35,0,0" Width="120" HorizontalAlignment="Center" Height="23" Click="btnFinish_Click"></Button>
+        </StackPanel>
+    </Grid>
+</Window>
