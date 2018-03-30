@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InstallNetFramework", "InstallNetFramework\InstallNetFramework.vcxproj", "{09CF4D5A-EF7A-44D3-A9EC-FD43B9DD3924}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KamilSetup", "KamilSetup\KamilSetup.csproj", "{19E859E4-50B1-4CA5-8885-67693552786B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaAudioSetup", "KamilSetup\PandaAudioSetup.csproj", "{19E859E4-50B1-4CA5-8885-67693552786B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

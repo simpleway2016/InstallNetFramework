@@ -2,7 +2,7 @@
 using System.IO;
 using System;
 
-namespace KamilSetup
+namespace PandaAudioSetup
 {
     /// <summary>
     /// 创建快捷方式的类

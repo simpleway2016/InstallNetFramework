@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace KamilSetup
+namespace PandaAudioSetup
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
@@ -105,8 +105,12 @@ namespace KamilSetup
                         }
                         _data.ProgressValue = _data.ProgressTotal;
                     }
-                    _data.SetupingTitle = "正在创建快捷方式...";
-                    ShortcutCreator.CreateShortcutOnDesktop("熊猫机架", $"{_data.Folder}\\kamil.exe", "Panda Audio", $"{_data.Folder}\\kamil.ico");
+
+                    if (_data.CurrentStatus == Model.Status.Setuping)
+                    {
+                        _data.SetupingTitle = "正在创建快捷方式...";
+                        ShortcutCreator.CreateShortcutOnDesktop("熊猫机架", $"{_data.Folder}\\kamil.exe", "Panda Audio", $"{_data.Folder}\\kamil.ico");
+                    }
                 }
                 if (_data.CurrentStatus == Model.Status.Setuping)
                 {
