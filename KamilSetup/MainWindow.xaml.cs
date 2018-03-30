@@ -57,10 +57,13 @@ namespace KamilSetup
 
             Task.Run(() =>
             {
+#if DEBUG
+#else
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
                 System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
                 _data.SetupingTitle = "正在安装虚拟声卡驱动...";
                 System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf *KamilMC").WaitForExit();
+#endif
                 if (_data.IsSetupDriverOnly == false)
                 {
                     _data.SetupingTitle = "正在拷贝文件...";
@@ -102,6 +105,8 @@ namespace KamilSetup
                         }
                         _data.ProgressValue = _data.ProgressTotal;
                     }
+                    _data.SetupingTitle = "正在创建快捷方式...";
+                    ShortcutCreator.CreateShortcutOnDesktop("熊猫机架", $"{_data.Folder}\\kamil.exe", "Panda Audio", $"{_data.Folder}\\kamil.ico");
                 }
                 if (_data.CurrentStatus == Model.Status.Setuping)
                 {
