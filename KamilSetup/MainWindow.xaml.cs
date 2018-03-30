@@ -109,7 +109,7 @@ namespace PandaAudioSetup
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
                         _data.SetupingTitle = "正在创建快捷方式...";
-                        ShortcutCreator.CreateShortcutOnDesktop("熊猫机架", $"{_data.Folder}\\kamil.exe", "Panda Audio", $"{_data.Folder}\\kamil.ico");
+                        ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
                     }
                 }
                 if (_data.CurrentStatus == Model.Status.Setuping)
@@ -136,7 +136,7 @@ namespace PandaAudioSetup
 
         private void btnFinish_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Application.Current.Shutdown(0);
         }
     }
 
