@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KamilSetup"
         mc:Ignorable="d"
-        Title="安装 - 熊猫机架" Height="350" Width="525" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        Title="安装 - 熊猫机架" Height="310" Width="525" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#5091e4" ></Setter>
@@ -19,6 +19,13 @@
         </Style>
     </Window.Resources>
     <Grid>
+        <Grid Margin="0,0,0,120" Background="#3c70b3">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Image Source="images/logo.ico" UseLayoutRounding="True" Width="96" Height="96" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor"></Image>
+                <TextBlock Text="Panda Audio Installer" Foreground="#ededed" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0"></TextBlock>
+            </StackPanel>
+            
+        </Grid>
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[None]}">
             <TextBlock Text="安装位置：" Margin="10,10,0,0"></TextBlock>
             <Grid>

@@ -122,5 +122,8 @@
   <ItemGroup>
     <Resource Include="System Install 1.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\logo.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
