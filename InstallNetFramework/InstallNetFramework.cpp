@@ -12,6 +12,31 @@ HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 
+
+typedef BOOL(WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+
+
+BOOL IsWow64()
+{
+	BOOL bIsWow64 = FALSE;
+
+	//IsWow64Process is not available on all supported versions of Windows.    
+	//Use GetModuleHandle to get a handle to the DLL that contains the function    
+	//and GetProcAddress to get a pointer to the function if available.    
+
+	LPFN_ISWOW64PROCESS fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+		GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+	if (NULL != fnIsWow64Process)
+	{
+		if (!fnIsWow64Process(GetCurrentProcess(), &bIsWow64))
+		{
+			//handle error    
+		}
+	}
+	return bIsWow64;
+}
+
 bool isInstalled()
 {
 	double compareVersion = 4.6;
@@ -85,6 +110,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+	if (!IsWow64())
+	{
+		MessageBoxA(0, "请在64位windows上安装此软件", "提示", 0);
+		return 0;
+	}
 
 	LPWSTR ndpName = L"ndp462.exe";
 	LPWSTR appName = L"app.exe";
