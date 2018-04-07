@@ -302,6 +302,10 @@ namespace PandaAudioSetup
             {
 
             }
+            
+            //卸载驱动
+            System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", "kamilva.inf *KamilMC /u").WaitForExit();
+
             MessageBox.Show(this, "卸载完毕！");
             Application.Current.Shutdown(0);
         }
