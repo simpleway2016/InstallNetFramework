@@ -29,13 +29,13 @@ namespace PandaAudioSetup
         {
             InitializeComponent();
             this.DataContext = _data = new Model();
-            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat"))
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt"))
             {
-                var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat", System.Text.Encoding.UTF8);
+                var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", System.Text.Encoding.UTF8);
                 _currentAppZipVersion = string2Double(content);
             }
 
-            if(System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
+            if (System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
             {
                 this.Title = "熊猫机架";
                 _data.CurrentStatus = Model.Status.UnInstall;
@@ -142,8 +142,8 @@ namespace PandaAudioSetup
                     {
                         _data.SetupingTitle = "正在创建快捷方式...";
                         ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-                        ShortcutCreator.CreateProgramsShortcut("熊猫机架" , "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-                      
+                        ShortcutCreator.CreateProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+
                         createUnInstall();
                     }
                 }
@@ -164,8 +164,8 @@ namespace PandaAudioSetup
 
                 var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
                 if (root.GetSubKeyNames().Contains("PandaAudio") == false)
-                {                    
-                    root.CreateSubKey("PandaAudio");                   
+                {
+                    root.CreateSubKey("PandaAudio");
                 }
                 root.Close();
                 root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);
@@ -212,15 +212,20 @@ namespace PandaAudioSetup
 
         async void CheckVersion()
         {
+            bool downloadNoAsk = false;
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
+            {
+                downloadNoAsk = true;
+            }
             try
             {
                 System.Net.WebClient client = new System.Net.WebClient();
                 client.Encoding = System.Text.Encoding.UTF8;
-                var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.dat"));
-                if ( _data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
+                var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.txt"));
+                if (_data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
                 {
-                    if (MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo , MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {                       
+                    if (downloadNoAsk || MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
                         try
                         {
                             _data.DownloadingTitle = "正在下载安装包...";
@@ -230,20 +235,20 @@ namespace PandaAudioSetup
                                 _data.DownloadingProgressTotal = e.TotalBytesToReceive;
                                 _data.DownloadingProgressValue = e.BytesReceived;
 
-                                _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)e.BytesReceived) / (1024 * 1024), 2)}M/{Math.Round( ((double)e.TotalBytesToReceive) / (1024 * 1024) , 2)}M";
+                                _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)e.BytesReceived) / (1024 * 1024), 2)}M/{Math.Round(((double)e.TotalBytesToReceive) / (1024 * 1024), 2)}M";
                             };
                             await client.DownloadFileTaskAsync($"{Domain}/app.zip", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
 
-                            if(System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
+                            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                                 System.IO.File.Delete($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
 
                             System.IO.File.Move($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
                             _currentAppZipVersion = string2Double(content);
-                            System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.dat",_currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
+                            System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", _currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
 
                             MessageBox.Show(this, "新版本下载完毕，请继续安装！", "", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             MessageBox.Show(this, ex.Message, "", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
@@ -257,7 +262,7 @@ namespace PandaAudioSetup
             }
             catch
             {
-                
+
             }
         }
 
@@ -274,7 +279,7 @@ namespace PandaAudioSetup
             root.DeleteSubKey("PandaAudio");
             root.Close();
             try
-            {                
+            {
                 System.IO.Directory.Delete(setupFolder + "codes", true);
             }
             catch
@@ -297,7 +302,7 @@ namespace PandaAudioSetup
             {
 
             }
-            MessageBox.Show(this,"卸载完毕！");
+            MessageBox.Show(this, "卸载完毕！");
             Application.Current.Shutdown(0);
         }
     }
