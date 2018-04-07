@@ -160,7 +160,8 @@ namespace PandaAudioSetup
             {
                 if (System.IO.File.Exists($"{_data.Folder}\\UnInstall.exe"))
                     System.IO.File.Delete($"{_data.Folder}\\UnInstall.exe");
-                System.IO.File.Move(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
+                System.IO.File.Copy(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
+                System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{_data.Folder}\\DriverInstaller.exe");
 
                 var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
                 if (root.GetSubKeyNames().Contains("PandaAudio") == false)
@@ -304,7 +305,7 @@ namespace PandaAudioSetup
             }
             
             //卸载驱动
-            System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", "kamilva.inf *KamilMC /u").WaitForExit();
+            System.Diagnostics.Process.Start($"{setupFolder}DriverInstaller.exe", "kamilva.inf *KamilMC /u").WaitForExit();
 
             MessageBox.Show(this, "卸载完毕！");
             Application.Current.Shutdown(0);
