@@ -94,107 +94,117 @@ namespace PandaAudioSetup
             base.OnClosing(e);
         }
 
-        private void btnSetup_Click(object sender, RoutedEventArgs e)
+        private async void btnSetup_Click(object sender, RoutedEventArgs e)
         {
             _data.CurrentStatus = Model.Status.Setuping;
 
-            Task.Run(() =>
+            try
             {
+                await Task.Run(() =>
+                {
 #if DEBUG
 #else
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
-                System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
-                _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-                System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf *KamilMC").WaitForExit();
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
+                    _data.SetupingTitle = "正在安装虚拟声卡驱动...";
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf *KamilMC").WaitForExit();
 #endif
                 if (_data.IsSetupDriverOnly == false)
-                {
-                    _data.SetupingTitle = "正在拷贝文件...";
+                    {
+                        _data.SetupingTitle = "正在拷贝文件...";
                     //拷贝文件
                     using (ZipFile zip = new ZipFile($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
-                    {
-                        _data.ProgressTotal = zip.Entries.Count;
-                        _data.ProgressValue = 0;
-                        foreach (var entry in zip.Entries)
                         {
-                            if (entry.IsDirectory == false)
+                            _data.ProgressTotal = zip.Entries.Count;
+                            _data.ProgressValue = 0;
+                            foreach (var entry in zip.Entries)
                             {
-                                try
+                                if (entry.IsDirectory == false)
                                 {
-                                    var folder = System.IO.Path.GetDirectoryName($"{_data.Folder}\\{entry.FileName}");
-                                    if (System.IO.Directory.Exists(folder) == false)
-                                        System.IO.Directory.CreateDirectory(folder);
-                                    using (var reader = entry.OpenReader())
+                                    try
                                     {
-                                        byte[] content = new byte[reader.Length];
-                                        reader.Read(content, 0, content.Length);
+                                        var folder = System.IO.Path.GetDirectoryName($"{_data.Folder}\\{entry.FileName}");
+                                        if (System.IO.Directory.Exists(folder) == false)
+                                            System.IO.Directory.CreateDirectory(folder);
+                                        using (var reader = entry.OpenReader())
+                                        {
+                                            byte[] content = new byte[reader.Length];
+                                            reader.Read(content, 0, content.Length);
 
-                                        var filename = $"{_data.Folder}\\{entry.FileName}";
-                                        if (System.IO.File.Exists(filename))
-                                            System.IO.File.Delete(filename);
-                                        System.IO.File.WriteAllBytes(filename, content);
-                                        System.IO.File.SetCreationTime(filename, entry.CreationTime);
-                                        System.IO.File.SetLastWriteTime(filename, entry.LastModified);
+                                            var filename = $"{_data.Folder}\\{entry.FileName}";
+                                            if (System.IO.File.Exists(filename))
+                                                System.IO.File.Delete(filename);
+                                            System.IO.File.WriteAllBytes(filename, content);
+                                            System.IO.File.SetCreationTime(filename, entry.CreationTime);
+                                            System.IO.File.SetLastWriteTime(filename, entry.LastModified);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Zip_ZipError(ex);
+                                        break;
                                     }
                                 }
-                                catch (Exception ex)
-                                {
-                                    Zip_ZipError(ex);
-                                    break;
-                                }
+
+                                _data.ProgressValue++;
                             }
-
-                            _data.ProgressValue++;
+                            _data.ProgressValue = _data.ProgressTotal;
                         }
-                        _data.ProgressValue = _data.ProgressTotal;
-                    }
 
+                        if (_data.CurrentStatus == Model.Status.Setuping)
+                        {
+                            _data.SetupingTitle = "正在创建快捷方式...";
+
+                            ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+                            ShortcutCreator.CreateProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+
+                            createUnInstall();
+                        }
+                    }
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
-                        _data.SetupingTitle = "正在创建快捷方式...";
-                        ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-                        ShortcutCreator.CreateProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-
-                        createUnInstall();
+                        _data.CurrentStatus = Model.Status.Finished;
                     }
-                }
-                if (_data.CurrentStatus == Model.Status.Setuping)
-                {
-                    _data.CurrentStatus = Model.Status.Finished;
-                }
-            });
+                });
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this, ex.Message);
+                _data.CurrentStatus = Model.Status.Finished;               
+                this.Close();
+            }
         }
 
         void createUnInstall()
         {
-            try
-            {
-                if (System.IO.File.Exists($"{_data.Folder}\\UnInstall.exe"))
-                    System.IO.File.Delete($"{_data.Folder}\\UnInstall.exe");
-                System.IO.File.Copy(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
-                System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{_data.Folder}\\DriverInstaller.exe");
+            _data.SetupingTitle = "正在创建卸载项 UnInstall...";
 
-                var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
-                if (root.GetSubKeyNames().Contains("PandaAudio") == false)
-                {
-                    root.CreateSubKey("PandaAudio");
-                }
-                root.Close();
-                root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);
-                root.SetValue("UninstallString", $"{_data.Folder}\\UnInstall.exe");
-                root.SetValue("DisplayIcon", $"{_data.Folder}\\kamil.ico");
-                root.SetValue("DisplayName", "Panda Audio");
-                root.SetValue("Publisher", $"Kamil");
-                root.SetValue("NoModify", 1, Microsoft.Win32.RegistryValueKind.DWord);
-                root.SetValue("NoRepair", 1, Microsoft.Win32.RegistryValueKind.DWord);
-                root.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
-                root.SetValue("InstallLocation", _data.Folder + "\\");
-                root.Close();
-            }
-            catch
-            {
+            if (System.IO.File.Exists($"{_data.Folder}\\UnInstall.exe"))
+                System.IO.File.Delete($"{_data.Folder}\\UnInstall.exe");
+            System.IO.File.Copy(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
 
+            _data.SetupingTitle = "正在创建卸载项 DriverInstaller...";
+            if (System.IO.File.Exists($"{_data.Folder}\\DriverInstaller.exe"))
+                System.IO.File.Delete($"{_data.Folder}\\DriverInstaller.exe");
+            System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{_data.Folder}\\DriverInstaller.exe");
+
+            _data.SetupingTitle = "正在创建注册表...";
+            var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
+            if (root.GetSubKeyNames().Contains("PandaAudio") == false)
+            {
+                root.CreateSubKey("PandaAudio");
             }
+            root.Close();
+            root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);
+            root.SetValue("UninstallString", $"{_data.Folder}\\UnInstall.exe");
+            root.SetValue("DisplayIcon", $"{_data.Folder}\\kamil.ico");
+            root.SetValue("DisplayName", "Panda Audio");
+            root.SetValue("Publisher", $"Kamil");
+            root.SetValue("NoModify", 1, Microsoft.Win32.RegistryValueKind.DWord);
+            root.SetValue("NoRepair", 1, Microsoft.Win32.RegistryValueKind.DWord);
+            root.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
+            root.SetValue("InstallLocation", _data.Folder + "\\");
+            root.Close();
         }
 
         private void Zip_ZipError(Exception err)
