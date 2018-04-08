@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +29,8 @@ namespace PandaAudioSetup
         public MainWindow()
         {
             InitializeComponent();
+            this.Topmost = true;
+            this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
             if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt"))
             {
@@ -40,6 +43,14 @@ namespace PandaAudioSetup
                 this.Title = "熊猫机架";
                 _data.CurrentStatus = Model.Status.UnInstall;
             }
+        }
+
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Run(()=> {
+                Thread.Sleep(1000);
+            });
+            this.Topmost = false;
         }
 
         double string2Double(string content)
