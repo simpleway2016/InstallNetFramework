@@ -29,6 +29,7 @@ namespace PandaAudioSetup
         public MainWindow()
         {
             InitializeComponent();
+            
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
@@ -157,7 +158,7 @@ namespace PandaAudioSetup
 
                             ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
                             ShortcutCreator.CreateProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-
+                            ShortcutCreator.CreateProgramsShortcut("熊猫机架", "卸载 - 熊猫机架", $"{_data.Folder}\\UnInstall.exe", "卸载熊猫机架", $"{_data.Folder}\\UnInstall.exe,0");
                             createUnInstall();
                         }
                     }
@@ -300,14 +301,7 @@ namespace PandaAudioSetup
             root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
             root.DeleteSubKey("PandaAudio");
             root.Close();
-            try
-            {
-                System.IO.Directory.Delete(setupFolder + "codes", true);
-            }
-            catch
-            {
-
-            }
+           
             try
             {
                 ShortcutCreator.DeleteShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
@@ -318,6 +312,7 @@ namespace PandaAudioSetup
             }
             try
             {
+                //会同时删除program文件夹
                 ShortcutCreator.DeleteProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
             }
             catch
@@ -327,6 +322,35 @@ namespace PandaAudioSetup
             
             //卸载驱动
             System.Diagnostics.Process.Start($"{setupFolder}DriverInstaller.exe", "kamilva.inf *KamilMC /u").WaitForExit();
+
+            try
+            {
+                string[] dirs = System.IO.Directory.GetDirectories(setupFolder);
+                foreach (var dir in dirs)
+                {
+                    if (dir.ToLower().EndsWith("\\effect"))
+                        continue;
+                    try
+                    {
+                        System.IO.Directory.Delete(dir, true);
+                    }
+                    catch { }
+                }
+
+                string[] files = System.IO.Directory.GetFiles(setupFolder);
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        System.IO.File.Delete(file);
+                    }
+                    catch { }
+                }
+            }
+            catch
+            {
+
+            }
 
             MessageBox.Show(this, "卸载完毕！");
             Application.Current.Shutdown(0);
