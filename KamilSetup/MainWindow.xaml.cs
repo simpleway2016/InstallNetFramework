@@ -108,7 +108,7 @@ namespace PandaAudioSetup
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
                     _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf *KamilMC").WaitForExit();
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf\" *KamilMC").WaitForExit();
 #endif
                 if (_data.IsSetupDriverOnly == false)
                     {
