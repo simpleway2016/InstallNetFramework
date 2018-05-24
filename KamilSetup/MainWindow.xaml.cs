@@ -103,6 +103,8 @@ namespace PandaAudioSetup
             {
                 await Task.Run(() =>
                 {
+                    var system32Path_32Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
+
                     var driverFolderName = "win10";
                     if( string2Double( System.Environment.OSVersion.Version.ToString()) < 6.2)
                     {
