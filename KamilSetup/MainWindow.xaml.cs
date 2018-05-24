@@ -103,14 +103,19 @@ namespace PandaAudioSetup
             {
                 await Task.Run(() =>
                 {
+                    var driverFolderName = "win10";
+                    if( string2Double( System.Environment.OSVersion.Version.ToString()) < 6.2)
+                    {
+                        driverFolderName = "win7";
+                    }
 #if DEBUG
 #else
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
                     _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\kamilva.inf\" *KamilMC").WaitForExit();
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\kamilva.inf\" *KamilMC").WaitForExit();
 #endif
-                if (_data.IsSetupDriverOnly == false)
+                    if (_data.IsSetupDriverOnly == false)
                     {
                         _data.SetupingTitle = "正在拷贝文件...";
                     //拷贝文件
