@@ -113,7 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	if (!IsWow64())
 	{
-		MessageBoxA(0, "请在64位windows上安装此软件", "提示", 0);
+		MessageBox(0, _T("请在64位windows上安装此软件"), _T("提示"), 0);
 		return 0;
 	}
 
@@ -165,7 +165,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 	else
 	{
-		MessageBoxA(0, ".Net Framework没有成功安装，安装程序将自动退出！", "提示", 0);
+		MessageBox(0, _T(".Net Framework没有成功安装，安装程序将自动退出！"), _T("提示"), 0);
 	}
 
 	return 0;
