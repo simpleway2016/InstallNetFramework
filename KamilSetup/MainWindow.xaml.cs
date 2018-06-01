@@ -115,14 +115,14 @@ namespace PandaAudioSetup
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
 
-                    //USB\\VID_04B4&PID_1004&REV_0000
+                    //USB\VID_04B4&PID_1004&REV_0000
                     if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\cyusb3.inf"))
                     {
                         _data.SetupingTitle = "正在安装usb驱动...";
-                        System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\cyusb3.inf\" USB\\VID_04B4&PID_1004&REV_0000").WaitForExit();
+                        System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\cyusb3.inf\" \"USB\\VID_04B4&PID_1004\"").WaitForExit();
                     }
                     _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\kamilva.inf\" *KamilMC").WaitForExit();
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\kamilva.inf\" \"*KamilMC\"").WaitForExit();
 #endif
                     if (_data.IsSetupDriverOnly == false)
                     {
