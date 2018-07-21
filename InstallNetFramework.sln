@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InstallNetFramework", "Inst
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PandaAudioSetup", "KamilSetup\PandaAudioSetup.csproj", "{19E859E4-50B1-4CA5-8885-67693552786B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsioDriverSetup", "AsioDriverSetup\AsioDriverSetup.csproj", "{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,18 @@ Global
 		{19E859E4-50B1-4CA5-8885-67693552786B}.Release|x64.Build.0 = Release|Any CPU
 		{19E859E4-50B1-4CA5-8885-67693552786B}.Release|x86.ActiveCfg = Release|Any CPU
 		{19E859E4-50B1-4CA5-8885-67693552786B}.Release|x86.Build.0 = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|x64.Build.0 = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Debug|x86.Build.0 = Debug|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|x64.ActiveCfg = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|x64.Build.0 = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|x86.ActiveCfg = Release|Any CPU
+		{33DDE70A-0EF5-4B90-BB39-B3CC697D4277}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
