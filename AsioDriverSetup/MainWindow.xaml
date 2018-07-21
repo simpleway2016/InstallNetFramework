@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AsioDriverSetup"
         mc:Ignorable="d"
-        Title="安装 - ASIO驱动" SizeToContent="Height" Width="460" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="安装 - USB声卡驱动" SizeToContent="Height" Width="460" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#5091e4" ></Setter>
