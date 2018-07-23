@@ -108,6 +108,8 @@ namespace AsioDriverSetup
                         System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll", $"{systemPath}\\cy22asio64.dll", true);
                         System.Diagnostics.Process.Start($"{systemPath}\\regsvr32.exe", $"/s \"{systemPath}\\cy22asio64.dll\"");
                     }
+                   
+
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
                         _data.CurrentStatus = Model.Status.Finished;
