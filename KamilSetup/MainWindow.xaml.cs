@@ -162,10 +162,7 @@ namespace PandaAudioSetup
 
                         if (_data.CurrentStatus == Model.Status.Setuping)
                         {  
-                            if(System.IO.File.Exists($"{_data.Folder}\\cy22asio.dll"))
-                            {
-                                System.Diagnostics.Process.Start($"{System.Environment.GetFolderPath( Environment.SpecialFolder.SystemX86 )}\\regsvr32.exe",$"/s \"{_data.Folder}\\cy22asio.dll\"");
-                            }
+                          
 
                             _data.SetupingTitle = "正在创建快捷方式...";
                             ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
