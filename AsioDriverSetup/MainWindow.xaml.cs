@@ -104,9 +104,9 @@ namespace AsioDriverSetup
                     if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll"))
                     {
                         _data.SetupingTitle = "正在注册64位ASIO...";
-                        var system32Path = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
-                        System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll", $"{system32Path}\\cy22asio64.dll", true);
-                        System.Diagnostics.Process.Start($"{system32Path}\\regsvr32.exe", $"/s \"{system32Path}\\cy22asio64.dll\"");
+                        var systemPath = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
+                        System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll", $"{systemPath}\\cy22asio64.dll", true);
+                        System.Diagnostics.Process.Start($"{systemPath}\\regsvr32.exe", $"/s \"{systemPath}\\cy22asio64.dll\"");
                     }
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
