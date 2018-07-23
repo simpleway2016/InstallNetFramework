@@ -93,6 +93,7 @@ namespace AsioDriverSetup
                     //USB\VID_04B4&PID_1004&REV_0000
                     _data.SetupingTitle = "正在安装usb驱动...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\cyusb3.inf\" \"USB\\VID_04B4&PID_1004\"").WaitForExit();
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"cyusb3.inf \"USB\\VID_04B4&PID_1004\" /u").WaitForExit();
 
                     if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio.dll"))
                     {
