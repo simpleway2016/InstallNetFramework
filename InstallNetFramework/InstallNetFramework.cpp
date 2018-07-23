@@ -1,4 +1,4 @@
-// InstallNetFramework.cpp: 定义应用程序的入口点。
+﻿// InstallNetFramework.cpp: 定义应用程序的入口点。
 //
 
 #include "stdafx.h"
@@ -117,8 +117,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		return 0;
 	}
 
-	LPWSTR ndpName = L"ndp462.exe";
-	LPWSTR appName = L"app.exe";
+	LPWSTR ndpName = L"package\\ndp462.exe";
+	LPWSTR appName = L"package\\app.exe";
 
 	if (isInstalled() == false)
 	{

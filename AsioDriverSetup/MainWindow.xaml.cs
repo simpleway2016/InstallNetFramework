@@ -81,7 +81,7 @@ namespace AsioDriverSetup
             {
                 await Task.Run(() =>
                 {
-                    var system32Path_32Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
+                   
 
                     var driverFolderName = "win10";
                     if (string2Double(System.Environment.OSVersion.Version.ToString()) < 6.2)
@@ -94,7 +94,20 @@ namespace AsioDriverSetup
                     _data.SetupingTitle = "正在安装usb驱动...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\cyusb3.inf\" \"USB\\VID_04B4&PID_1004\"").WaitForExit();
 
-
+                    if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio.dll"))
+                    {
+                        _data.SetupingTitle = "正在注册32位ASIO...";
+                        var system32Path_32Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
+                        System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio.dll", $"{system32Path_32Bit}\\cy22asio.dll", true);
+                        System.Diagnostics.Process.Start($"{system32Path_32Bit}\\regsvr32.exe", $"/s \"{system32Path_32Bit}\\cy22asio.dll\"");
+                    }
+                    if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll"))
+                    {
+                        _data.SetupingTitle = "正在注册64位ASIO...";
+                        var systemPath = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
+                        System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\cy22asio64.dll", $"{systemPath}\\cy22asio64.dll", true);
+                        System.Diagnostics.Process.Start($"{systemPath}\\regsvr32.exe", $"/s \"{systemPath}\\cy22asio64.dll\"");
+                    }
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
                         _data.CurrentStatus = Model.Status.Finished;
