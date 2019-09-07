@@ -1,4 +1,5 @@
-﻿using Ionic.Zip;
+﻿using DriverInstallLib;
+using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +26,7 @@ namespace PandaAudioSetup
     {
         Model _data;
         double _currentAppZipVersion = 0;
-        const string Domain = "http://www.pandaaudio.cn:8988";
+        const string Domain = "http://www.zgp.ink:8988";
         public MainWindow()
         {
             InitializeComponent();
@@ -41,7 +42,7 @@ namespace PandaAudioSetup
 
             if (System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
             {
-                this.Title = "熊猫机架";
+                this.Title = "Monster Audio";
                 _data.CurrentStatus = Model.Status.UnInstall;
             }
         }
@@ -72,7 +73,7 @@ namespace PandaAudioSetup
             {
                 if (frm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _data.Folder = frm.SelectedPath + "\\PandaAudio";
+                    _data.Folder = frm.SelectedPath + "\\ZGPAudio";
                 }
             }
         }
@@ -115,14 +116,14 @@ namespace PandaAudioSetup
                 _data.SetupingTitle = "正在安装vc_redist.x86...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
 
-                    _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"\"{AppDomain.CurrentDomain.BaseDirectory}data\\{driverFolderName}\\kamilva.inf\" \"*KamilMC\"").WaitForExit();
+
 #endif
+
                     if (_data.IsSetupDriverOnly == false)
                     {
                         _data.SetupingTitle = "正在拷贝文件...";
-                    //拷贝文件
-                    using (ZipFile zip = new ZipFile($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
+                        //拷贝文件
+                        using (ZipFile zip = new ZipFile($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                         {
                             _data.ProgressTotal = zip.Entries.Count;
                             _data.ProgressValue = 0;
@@ -159,15 +160,25 @@ namespace PandaAudioSetup
                             }
                             _data.ProgressValue = _data.ProgressTotal;
                         }
+                    }
 
+                    if (DevConHelper.ListInstalledDrivers(DriverClass.Media).Any(m => m.Name.Contains("Monster Audio")) == false)
+                    {
+                        _data.SetupingTitle = "正在安装虚拟声卡驱动...";
+
+                        DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");
+                    }
+
+                    if (_data.IsSetupDriverOnly == false)
+                    {
                         if (_data.CurrentStatus == Model.Status.Setuping)
                         {  
                           
 
                             _data.SetupingTitle = "正在创建快捷方式...";
-                            ShortcutCreator.CreateShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-                            ShortcutCreator.CreateProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
-                            ShortcutCreator.CreateProgramsShortcut("熊猫机架", "卸载 - 熊猫机架", $"{_data.Folder}\\UnInstall.exe", "卸载熊猫机架", $"{_data.Folder}\\UnInstall.exe,0");
+                            ShortcutCreator.CreateShortcutOnDesktop("ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
+                            ShortcutCreator.CreateProgramsShortcut("ZGP Audio", "ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
+                            ShortcutCreator.CreateProgramsShortcut("ZGP Audio", "Uninstall ZGP Audio", $"{_data.Folder}\\UnInstall.exe", "Uninstall ZGP Audio", $"{_data.Folder}\\UnInstall.exe,0");
                             createUnInstall();
                         }
                     }
@@ -193,23 +204,19 @@ namespace PandaAudioSetup
                 System.IO.File.Delete($"{_data.Folder}\\UnInstall.exe");
             System.IO.File.Copy(System.Windows.Forms.Application.ExecutablePath, $"{_data.Folder}\\UnInstall.exe");
 
-            _data.SetupingTitle = "正在创建卸载项 DriverInstaller...";
-            if (System.IO.File.Exists($"{_data.Folder}\\DriverInstaller.exe"))
-                System.IO.File.Delete($"{_data.Folder}\\DriverInstaller.exe");
-            System.IO.File.Copy($"{AppDomain.CurrentDomain.BaseDirectory}data\\DriverInstaller.exe", $"{_data.Folder}\\DriverInstaller.exe");
 
             _data.SetupingTitle = "正在创建注册表...";
             var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
-            if (root.GetSubKeyNames().Contains("PandaAudio") == false)
+            if (root.GetSubKeyNames().Contains("MonsterAudio") == false)
             {
-                root.CreateSubKey("PandaAudio");
+                root.CreateSubKey("MonsterAudio");
             }
             root.Close();
-            root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);
+            root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MonsterAudio", true);
             root.SetValue("UninstallString", $"{_data.Folder}\\UnInstall.exe");
-            root.SetValue("DisplayIcon", $"{_data.Folder}\\kamil.ico");
-            root.SetValue("DisplayName", "Panda Audio");
-            root.SetValue("Publisher", $"Kamil");
+            root.SetValue("DisplayIcon", $"{_data.Folder}\\Monster.ico");
+            root.SetValue("DisplayName", "ZGP Audio");
+            root.SetValue("Publisher", $"ZGP");
             root.SetValue("NoModify", 1, Microsoft.Win32.RegistryValueKind.DWord);
             root.SetValue("NoRepair", 1, Microsoft.Win32.RegistryValueKind.DWord);
             root.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
@@ -244,14 +251,15 @@ namespace PandaAudioSetup
 
         async void CheckVersion()
         {
-            bool downloadNoAsk = false;
-            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
-            {
-                downloadNoAsk = true;
-            }
+            bool downloadNoAsk = true;
+            //if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
+            //{
+            //    downloadNoAsk = true;
+            //}
             try
             {
                 System.Net.WebClient client = new System.Net.WebClient();
+                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
                 client.Encoding = System.Text.Encoding.UTF8;
                 var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.txt"));
                 if (_data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
@@ -300,7 +308,7 @@ namespace PandaAudioSetup
 
         private void btnUnInstall_Click(object sender, RoutedEventArgs e)
         {
-            var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PandaAudio", true);//InstallLocation
+            var root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MonsterAudio", true);//InstallLocation
             var setupFolder = root.GetValue("InstallLocation").ToString();
             if (setupFolder.EndsWith("\\") == false)
                 setupFolder += "\\";
@@ -308,12 +316,12 @@ namespace PandaAudioSetup
             root.Close();
 
             root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall", true);
-            root.DeleteSubKey("PandaAudio");
+            root.DeleteSubKey("MonsterAudio");
             root.Close();
            
             try
             {
-                ShortcutCreator.DeleteShortcutOnDesktop("Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+                ShortcutCreator.DeleteShortcutOnDesktop("ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
             }
             catch
             {
@@ -322,15 +330,24 @@ namespace PandaAudioSetup
             try
             {
                 //会同时删除program文件夹
-                ShortcutCreator.DeleteProgramsShortcut("熊猫机架", "Panda Audio", $"{_data.Folder}\\kamil.exe", "熊猫机架", $"{_data.Folder}\\kamil.ico");
+                ShortcutCreator.DeleteProgramsShortcut("ZGP Audio", "ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
             }
             catch
             {
 
             }
-            
+
             //卸载驱动
-            System.Diagnostics.Process.Start($"{setupFolder}DriverInstaller.exe", "kamilva.inf *KamilMC /u").WaitForExit();
+            if (true)
+            {
+                var driver = DevConHelper.ListInstalledDrivers(DriverClass.Media).FirstOrDefault(m => m.Name.Contains("Monster Audio"));
+                if (driver != null)
+                {
+                    var path = driver.Path;
+                    bool needReboot;
+                    DevConHelper.RemoveDriver(path, out needReboot);
+                }
+            }
 
             try
             {
@@ -548,7 +565,7 @@ namespace PandaAudioSetup
         public Model()
         {
             SetupingTitle = "正在安装...";
-            this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\PandaAudio";
+            this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\ZGPAudio";
             Visibility = new PannelVisibility(this);
         }
 
