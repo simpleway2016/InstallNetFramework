@@ -122,6 +122,15 @@ namespace PandaAudioSetup
                     if (_data.IsSetupDriverOnly == false)
                     {
                         _data.SetupingTitle = "正在拷贝文件...";
+
+                        var tryfolder = $"{_data.Folder}\\{Guid.NewGuid().ToString("N")}";
+                        System.IO.Directory.CreateDirectory(tryfolder);
+                        if (System.IO.Directory.Exists(tryfolder) == false)
+                        {
+                            throw new Exception($"路径“{_data.Folder}”无法读写，可能是杀毒软件导致的，可以尝试把安装路径更改到其他盘符");
+                        }
+                        System.IO.Directory.Delete(tryfolder);
+
                         //拷贝文件
                         using (ZipFile zip = new ZipFile($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                         {
@@ -137,10 +146,7 @@ namespace PandaAudioSetup
                                         if (System.IO.Directory.Exists(folder) == false)
                                             System.IO.Directory.CreateDirectory(folder);
 
-                                        if (System.IO.Directory.Exists(folder) == false)
-                                        {
-                                            throw new Exception($"无法生成文件夹“{folder}”，可以尝试把安装路径更改到其他盘符");
-                                        }
+                                       
 
                                             using (var reader = entry.OpenReader())
                                         {
