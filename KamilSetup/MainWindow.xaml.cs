@@ -271,7 +271,9 @@ namespace PandaAudioSetup
             try
             {
                 System.Net.WebClient client = new System.Net.WebClient();
-                client.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)");
+                client.Headers.Add("Cache-Control", "no-cache");
+                client.Headers.Add("Pragma", "no-cache");
+                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
                 client.Encoding = System.Text.Encoding.UTF8;
                 var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.txt"));
                 if (_data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
@@ -282,6 +284,13 @@ namespace PandaAudioSetup
                         {
                             _data.DownloadingTitle = "正在下载安装包...";
                             _data.CurrentStatus = Model.Status.Downloading;
+
+                            client = new System.Net.WebClient();
+                            client.Headers.Add("Cache-Control", "no-cache");
+                            client.Headers.Add("Pragma", "no-cache");
+                            client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
+                            client.Encoding = System.Text.Encoding.UTF8;
+
                             client.DownloadProgressChanged += (s, e) =>
                             {
                                 _data.DownloadingProgressTotal = e.TotalBytesToReceive;
@@ -312,9 +321,9 @@ namespace PandaAudioSetup
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
             }
         }
 
