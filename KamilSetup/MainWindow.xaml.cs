@@ -136,7 +136,13 @@ namespace PandaAudioSetup
                                         var folder = System.IO.Path.GetDirectoryName($"{_data.Folder}\\{entry.FileName}");
                                         if (System.IO.Directory.Exists(folder) == false)
                                             System.IO.Directory.CreateDirectory(folder);
-                                        using (var reader = entry.OpenReader())
+
+                                        if (System.IO.Directory.Exists(folder) == false)
+                                        {
+                                            throw new Exception($"无法生成文件夹“{folder}”，可以尝试把安装路径更改到其他盘符");
+                                        }
+
+                                            using (var reader = entry.OpenReader())
                                         {
                                             byte[] content = new byte[reader.Length];
                                             reader.Read(content, 0, content.Length);
