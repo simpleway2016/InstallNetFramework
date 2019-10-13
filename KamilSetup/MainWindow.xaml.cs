@@ -587,6 +587,16 @@ namespace PandaAudioSetup
         {
             SetupingTitle = "正在安装...";
             this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\ZGPAudio";
+            try
+            {
+                System.IO.Directory.GetFiles("d:\\","*.ppa");
+                this.Folder = "D" + this.Folder.Substring(1);
+            }
+            catch
+            {
+
+            }
+           
             Visibility = new PannelVisibility(this);
         }
 
