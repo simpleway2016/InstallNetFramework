@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,19 +26,19 @@ namespace PandaAudioSetup
     public partial class MainWindow : Window
     {
         Model _data;
-        double _currentAppZipVersion = 0;
+        System.Version _currentAppZipVersion = new Version("0.0.0.0");
         const string Domain = "http://www.zgp.ink:8988";
         public MainWindow()
         {
             InitializeComponent();
-            
-            this.Topmost = true;
+
+                this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
-            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt"))
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\version.txt"))
             {
-                var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", System.Text.Encoding.UTF8);
-                _currentAppZipVersion = string2Double(content);
+                var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\version.txt", System.Text.Encoding.UTF8);
+                _currentAppZipVersion = new Version(content);
             }
 
             if (System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
@@ -55,18 +56,7 @@ namespace PandaAudioSetup
             this.Topmost = false;
         }
 
-        double string2Double(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-                return 0;
-
-            var index = content.IndexOf(".");
-            if (index < 0)
-                return Convert.ToDouble(content);
-            content = content.Replace(".", "");
-            return Convert.ToDouble(content.Insert(index, "."));
-        }
-
+      
         private void btnSelectFolder_Click(object sender, RoutedEventArgs e)
         {
             using (var frm = new System.Windows.Forms.FolderBrowserDialog())
@@ -107,7 +97,7 @@ namespace PandaAudioSetup
                     var system32Path_32Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
 
                     var driverFolderName = "win10";
-                    if( string2Double( System.Environment.OSVersion.Version.ToString()) < 6.2)
+                    if(new Version( System.Environment.OSVersion.Version.ToString()) < new Version("6.2"))
                     {
                         driverFolderName = "win7";
                     }
@@ -270,13 +260,13 @@ namespace PandaAudioSetup
             //}
             try
             {
-                System.Net.WebClient client = new System.Net.WebClient();
-                client.Headers.Add("Cache-Control", "no-cache");
-                client.Headers.Add("Pragma", "no-cache");
-                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
-                client.Encoding = System.Text.Encoding.UTF8;
-                var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.txt"));
-                if (_data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
+                System.Net.Http.HttpClient httpClient = new System.Net.Http.HttpClient();
+
+                httpClient.DefaultRequestHeaders.Add("Cache-Control", "no-cache");
+                httpClient.DefaultRequestHeaders.Add("Pragma", "no-cache");
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
+                var content = await httpClient.GetStringAsync($"{Domain}/main/version");
+                if (_data.CurrentStatus == Model.Status.None && new Version(content) > _currentAppZipVersion)
                 {
                     if (downloadNoAsk || MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
@@ -285,27 +275,42 @@ namespace PandaAudioSetup
                             _data.DownloadingTitle = "正在下载安装包...";
                             _data.CurrentStatus = Model.Status.Downloading;
 
-                            client = new System.Net.WebClient();
-                            client.Headers.Add("Cache-Control", "no-cache");
-                            client.Headers.Add("Pragma", "no-cache");
-                            client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
-                            client.Encoding = System.Text.Encoding.UTF8;
+                            var httpWebRequest = HttpWebRequest.CreateHttp($"{Domain}/main/app");
+                            httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36";
+                            
+                            var response = await httpWebRequest.GetResponseAsync();
 
-                            client.DownloadProgressChanged += (s, e) =>
-                            {
-                                _data.DownloadingProgressTotal = e.TotalBytesToReceive;
-                                _data.DownloadingProgressValue = e.BytesReceived;
+                            var contentLen = (int)response.ContentLength;
+                            var total = contentLen;
 
-                                _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)e.BytesReceived) / (1024 * 1024), 2)}M/{Math.Round(((double)e.TotalBytesToReceive) / (1024 * 1024), 2)}M";
-                            };
-                            await client.DownloadFileTaskAsync($"{Domain}/app.zip", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
+                            _data.DownloadingProgressTotal = total;
+                            _data.DownloadingProgressValue = 0;
+
+                    byte[] data = new byte[4096];
+                            var fs = System.IO.File.Create($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
+                            var stream = response.GetResponseStream();
+                              await Task.Run(() => {
+                                while (contentLen > 0)
+                                {
+                                    var readed = stream.Read(data, 0, Math.Min(data.Length, contentLen));
+                                    fs.Write(data, 0, readed);
+                                    contentLen -= readed;
+
+                                    _data.DownloadingProgressTotal = total;
+                                    _data.DownloadingProgressValue = total - contentLen;
+
+                                    _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)(total - contentLen)) / (1024 * 1024), 2)}M/{Math.Round(((double)total) / (1024 * 1024), 2)}M";
+                                }
+                            });
+                            fs.Dispose();
+                            stream.Dispose();
 
                             if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                                 System.IO.File.Delete($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
 
                             System.IO.File.Move($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
-                            _currentAppZipVersion = string2Double(content);
-                            System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", _currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
+                            _currentAppZipVersion = new Version(content);
+                            System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\version.txt", _currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
 
                             MessageBox.Show(this, "新版本下载完毕，请继续安装！", "", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
