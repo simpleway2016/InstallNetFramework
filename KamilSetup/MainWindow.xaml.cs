@@ -26,7 +26,7 @@ namespace PandaAudioSetup
     {
         Model _data;
         double _currentAppZipVersion = 0;
-        const string Domain = "http://www.zgp.ink:8988";
+        const string Domain = "http://jacktan.cn:8988";
         public MainWindow()
         {
             InitializeComponent();
@@ -73,7 +73,7 @@ namespace PandaAudioSetup
             {
                 if (frm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    _data.Folder = frm.SelectedPath + "\\ZGPAudio";
+                    _data.Folder = frm.SelectedPath + "\\MonsterAudio";
                 }
             }
         }
@@ -188,9 +188,9 @@ namespace PandaAudioSetup
                           
 
                             _data.SetupingTitle = "正在创建快捷方式...";
-                            ShortcutCreator.CreateShortcutOnDesktop("ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
-                            ShortcutCreator.CreateProgramsShortcut("ZGP Audio", "ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
-                            ShortcutCreator.CreateProgramsShortcut("ZGP Audio", "Uninstall ZGP Audio", $"{_data.Folder}\\UnInstall.exe", "Uninstall ZGP Audio", $"{_data.Folder}\\UnInstall.exe,0");
+                            ShortcutCreator.CreateShortcutOnDesktop("Monster Audio", $"{_data.Folder}\\Monster.exe", "Monster Audio", $"{_data.Folder}\\Monster.ico");
+                            ShortcutCreator.CreateProgramsShortcut("Monster Audio", "Monster Audio", $"{_data.Folder}\\Monster.exe", "Monster Audio", $"{_data.Folder}\\Monster.ico");
+                            ShortcutCreator.CreateProgramsShortcut("Monster Audio", "Uninstall Monster Audio", $"{_data.Folder}\\UnInstall.exe", "Uninstall Monster Audio", $"{_data.Folder}\\UnInstall.exe,0");
                             createUnInstall();
                         }
                     }
@@ -227,8 +227,8 @@ namespace PandaAudioSetup
             root = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MonsterAudio", true);
             root.SetValue("UninstallString", $"{_data.Folder}\\UnInstall.exe");
             root.SetValue("DisplayIcon", $"{_data.Folder}\\Monster.ico");
-            root.SetValue("DisplayName", "ZGP Audio");
-            root.SetValue("Publisher", $"ZGP");
+            root.SetValue("DisplayName", "Monster Audio");
+            root.SetValue("Publisher", $"Monster");
             root.SetValue("NoModify", 1, Microsoft.Win32.RegistryValueKind.DWord);
             root.SetValue("NoRepair", 1, Microsoft.Win32.RegistryValueKind.DWord);
             root.SetValue("InstallDate", DateTime.Now.ToString("yyyyMMdd"));
@@ -342,7 +342,7 @@ namespace PandaAudioSetup
            
             try
             {
-                ShortcutCreator.DeleteShortcutOnDesktop("ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
+                ShortcutCreator.DeleteShortcutOnDesktop("Monster Audio", $"{_data.Folder}\\Monster.exe", "Monster Audio", $"{_data.Folder}\\Monster.ico");
             }
             catch
             {
@@ -351,7 +351,7 @@ namespace PandaAudioSetup
             try
             {
                 //会同时删除program文件夹
-                ShortcutCreator.DeleteProgramsShortcut("ZGP Audio", "ZGP Audio", $"{_data.Folder}\\Monster.exe", "ZGP Audio", $"{_data.Folder}\\Monster.ico");
+                ShortcutCreator.DeleteProgramsShortcut("Monster Audio", "Monster Audio", $"{_data.Folder}\\Monster.exe", "Monster Audio", $"{_data.Folder}\\Monster.ico");
             }
             catch
             {
@@ -586,7 +586,7 @@ namespace PandaAudioSetup
         public Model()
         {
             SetupingTitle = "正在安装...";
-            this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\ZGPAudio";
+            this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\MonsterAudio";
             try
             {
                 System.IO.Directory.GetFiles("d:\\","*.ppa");
