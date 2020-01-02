@@ -131,6 +131,15 @@ namespace PandaAudioSetup
                         }
                         System.IO.Directory.Delete(tryfolder);
 
+                        var stream = Application.GetResourceStream(new Uri("pack://application:,,,/images/logo.ico"));
+
+
+                        byte[] bs = new byte[stream.Stream.Length];
+                        stream.Stream.Position = 0;
+                        stream.Stream.Read(bs, 0, bs.Length);
+
+                        System.IO.File.WriteAllBytes($"{_data.Folder}\\Monster.ico", bs);
+
                         //拷贝文件
                         using (ZipFile zip = new ZipFile($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                         {
