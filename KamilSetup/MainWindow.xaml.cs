@@ -106,7 +106,7 @@ namespace PandaAudioSetup
             {
                 await Task.Run(() =>
                 {
-                    var system32Path_32Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
+                    var systemPath_64Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
 
                     var driverFolderName = "win10";
                     if( string2Double( System.Environment.OSVersion.Version.ToString()) < 6.2)
@@ -115,7 +115,9 @@ namespace PandaAudioSetup
                     }
 #if DEBUG
 #else
-                _data.SetupingTitle = "正在安装vc_redist.x86...";
+                _data.SetupingTitle = "正在安装vc_redist.x64...";
+                    System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x64.exe", "/quiet").WaitForExit();
+                    _data.SetupingTitle = "正在安装vc_redist.x86...";
                     System.Diagnostics.Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}data\\vc_redist.x86.exe", "/quiet").WaitForExit();
 
 
