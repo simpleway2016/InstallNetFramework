@@ -602,7 +602,9 @@ namespace PandaAudioSetup
             this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\MonsterAudio";
             try
             {
-                System.IO.Directory.GetFiles("d:\\","*.ppa");
+                var filename = "d:\\" + Guid.NewGuid();
+                System.IO.File.Create(filename).Close();
+                System.IO.File.Delete(filename);
                 this.Folder = "D" + this.Folder.Substring(1);
             }
             catch
