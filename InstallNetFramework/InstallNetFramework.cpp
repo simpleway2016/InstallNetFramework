@@ -111,14 +111,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-	if (!IsWow64())
-	{
-		MessageBox(0, _T("请在64位windows上安装此软件"), _T("提示"), 0);
-		return 0;
-	}
+	//if (!IsWow64())
+	//{
+	//	MessageBox(0, _T("请在64位windows上安装此软件"), _T("提示"), 0);
+	//	return 0;
+	//}
 
-	LPWSTR ndpName = L"package\\ndp462.exe";
-	LPWSTR appName = L"package\\app.exe";
+	LPWSTR ndpName = L"./package/ndp462.exe";
+	LPWSTR appName = L"./package/app.exe";
 
 	if (isInstalled() == false)
 	{
@@ -151,6 +151,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		//对程序的启动信息不作任何设定，全部清0
 		memset(&StartInfo, 0, sizeof(STARTUPINFO));
 		StartInfo.cb = sizeof(STARTUPINFO);//设定结构的大小
+	
 		BOOL ret = CreateProcessW(
 			appName, //启动程序路径名
 			NULL, //参数（当exeName为NULL时，可将命令放入参数前）
