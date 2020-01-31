@@ -25,8 +25,8 @@ namespace PandaAudioSetup
     public partial class MainWindow : Window
     {
         Model _data;
-        double _currentAppZipVersion = 0;
-        const string Domain = "http://jacktan.cn:8988";
+        Version _currentAppZipVersion = new Version("0.0.0.0");
+        const string ServerUrl = "http://jacktan.cn:8988";
         public MainWindow()
         {
             InitializeComponent();
@@ -39,7 +39,7 @@ namespace PandaAudioSetup
             if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt"))
             {
                 var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", System.Text.Encoding.UTF8);
-                _currentAppZipVersion = string2Double(content);
+                _currentAppZipVersion = new Version(content);
             }
 
             if (System.Windows.Forms.Application.ExecutablePath.Contains("UnInstall.exe"))
@@ -273,7 +273,9 @@ namespace PandaAudioSetup
         {
             CheckVersion();
         }
-
+        static string VersionFileUrl;
+        static string AppFileUrl;
+        static string VersionHistoryUrl;
         async void CheckVersion()
         {
             bool downloadNoAsk = true;
@@ -288,8 +290,21 @@ namespace PandaAudioSetup
                 client.Headers.Add("Pragma", "no-cache");
                 client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36");
                 client.Encoding = System.Text.Encoding.UTF8;
-                var content = await client.DownloadStringTaskAsync(new Uri($"{Domain}/app.txt"));
-                if (_data.CurrentStatus == Model.Status.None && string2Double(content) > _currentAppZipVersion)
+
+                var urlsContent = await client.DownloadStringTaskAsync(new Uri($"{ServerUrl}/urls.json"));
+                var dict = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(urlsContent);
+                if (dict.ContainsKey("VersionFileUrl"))
+                    VersionFileUrl = dict["VersionFileUrl"];
+
+                if (dict.ContainsKey("AppFileUrl"))
+                    AppFileUrl = dict["AppFileUrl"];
+
+                if (dict.ContainsKey("VersionHistoryUrl"))
+                    VersionHistoryUrl = dict["VersionHistoryUrl"];
+
+                var versionFileContent = await client.DownloadStringTaskAsync(new Uri(VersionFileUrl));
+                var serverVersion = new Version(Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(versionFileContent)["version"]);
+                if (_data.CurrentStatus == Model.Status.None && serverVersion > _currentAppZipVersion)
                 {
                     if (downloadNoAsk || MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
@@ -311,13 +326,13 @@ namespace PandaAudioSetup
 
                                 _data.DownloadingTitle = $"正在下载安装包...  {Math.Round(((double)e.BytesReceived) / (1024 * 1024), 2)}M/{Math.Round(((double)e.TotalBytesToReceive) / (1024 * 1024), 2)}M";
                             };
-                            await client.DownloadFileTaskAsync($"{Domain}/app.zip", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
+                            await client.DownloadFileTaskAsync(AppFileUrl, $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp");
 
                             if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
                                 System.IO.File.Delete($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
 
                             System.IO.File.Move($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip.tmp", $"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip");
-                            _currentAppZipVersion = string2Double(content);
+                            _currentAppZipVersion = serverVersion;
                             System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", _currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
 
                             MessageBox.Show(this, "新版本下载完毕，请继续安装！", "", MessageBoxButton.OK, MessageBoxImage.Information);
