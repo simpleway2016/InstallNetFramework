@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,11 +27,11 @@ namespace PandaAudioSetup
     {
         Model _data;
         double _currentAppZipVersion = 0;
-        const string Domain = "http://www.zgp.ink:8988";
+        const string Domain = "https://www.zgp.ink:8988";
         public MainWindow()
         {
             InitializeComponent();
-            
+            ServicePointManager.ServerCertificateValidationCallback += (s, cert, chain, sslPolicyErrors) => true;
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
