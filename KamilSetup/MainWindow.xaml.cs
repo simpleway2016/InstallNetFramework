@@ -271,7 +271,8 @@ namespace PandaAudioSetup
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            CheckVersion();
+            if(_data.CurrentStatus != Model.Status.UnInstall)
+                CheckVersion();
         }
         static string VersionFileUrl;
         static string AppFileUrl;
