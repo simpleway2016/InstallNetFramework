@@ -187,12 +187,7 @@ namespace PandaAudioSetup
                         }
                     }
 
-                    if (DevConHelper.ListInstalledDrivers(DriverClass.Media).Any(m => m.Name.Contains("Monster Audio")) == false)
-                    {
-                        _data.SetupingTitle = "正在安装虚拟声卡驱动...";
-
-                        DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");
-                    }
+                   
 
                     if (_data.IsSetupDriverOnly == false)
                     {
@@ -207,6 +202,14 @@ namespace PandaAudioSetup
                             createUnInstall();
                         }
                     }
+
+                    if (DevConHelper.ListInstalledDrivers(DriverClass.Media).Any(m => m.Name.Contains("Monster Audio")) == false)
+                    {
+                        _data.SetupingTitle = "正在安装虚拟声卡驱动...";
+
+                        DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");
+                    }
+
                     if (_data.CurrentStatus == Model.Status.Setuping)
                     {
                         _data.CurrentStatus = Model.Status.Finished;
