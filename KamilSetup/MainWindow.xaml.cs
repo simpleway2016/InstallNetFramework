@@ -31,7 +31,7 @@ namespace PandaAudioSetup
         {
             InitializeComponent();
 
-          
+            
 
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
@@ -207,7 +207,35 @@ namespace PandaAudioSetup
                     {
                         _data.SetupingTitle = "正在安装虚拟声卡驱动...";
 
-                        DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");
+                        DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");                        
+                    }
+
+                    //如果是win7
+                    if (System.Environment.OSVersion.Version < new Version("6.2"))
+                    {
+                        try
+                        {
+                            var renderkey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render", false);
+                            var folders = renderkey.GetSubKeyNames();
+                            renderkey.Dispose();
+
+                            foreach (var foldername in folders)
+                            {
+                                using (renderkey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render\{foldername}\Properties", true))
+                                {
+                                    var val = renderkey.GetValue("{a45c254e-df1c-4efd-8020-67d146a850e0},2");
+                                    if (val != null && val.ToString().Contains("Monster Mic"))
+                                    {
+                                        renderkey.SetValue("{a45c254e-df1c-4efd-8020-67d146a850e0},2", "Monster Play");
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("发生错误，此错误可忽略，已经成功安装！\r\n" + ex.Message);
+                        }
+
                     }
 
                     if (_data.CurrentStatus == Model.Status.Setuping)
