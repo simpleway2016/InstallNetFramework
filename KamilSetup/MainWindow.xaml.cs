@@ -3,6 +3,7 @@ using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -31,8 +32,7 @@ namespace PandaAudioSetup
         {
             InitializeComponent();
 
-            
-
+           
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
@@ -221,12 +221,19 @@ namespace PandaAudioSetup
 
                             foreach (var foldername in folders)
                             {
-                                using (renderkey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render\{foldername}\Properties", true))
+                                using (renderkey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey($@"SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render\{foldername}\Properties", false))
                                 {
                                     var val = renderkey.GetValue("{a45c254e-df1c-4efd-8020-67d146a850e0},2");
                                     if (val != null && val.ToString().Contains("Monster Mic"))
                                     {
-                                        renderkey.SetValue("{a45c254e-df1c-4efd-8020-67d146a850e0},2", "Monster Play");
+                                        //renderkey.SetValue("{a45c254e-df1c-4efd-8020-67d146a850e0},2", "Monster Play");
+                                        var content = $@"Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render\{foldername}\Properties]
+""{{a45c254e-df1c-4efd-8020-67d146a850e0}},2""=""Monster Play""
+";
+                                        System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}reg.reg", content, System.Text.Encoding.Unicode);
+                                        Process.Start("regedit", string.Format(" /s \"{0}\"", $"{AppDomain.CurrentDomain.BaseDirectory}reg.reg")).WaitForExit();
                                     }
                                 }
                             }
