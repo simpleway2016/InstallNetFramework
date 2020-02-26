@@ -27,14 +27,25 @@
             
         </Grid>
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[None]}">
-            <TextBlock Text="安装位置：" Margin="10,10,0,0"></TextBlock>
+            <TextBlock Margin="10,10,0,0">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="安装位置："></Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CanInstall}" Value="False">
+                                <Setter Property="Text" Value="正在下载安装包..."></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
             <Grid>
                 <TextBox Margin="10,10,65,0" Height="23" Text="{Binding Folder}"></TextBox>
                 <Button Content="浏览..." Margin="0,10,10,0" Width="50" HorizontalAlignment="Right" Click="btnSelectFolder_Click"></Button>
             </Grid>
             <Grid Margin="10,15,10,0" >
                 <CheckBox Content="仅安装相关驱动" Margin="0,5,0,0" IsChecked="{Binding IsSetupDriverOnly}"></CheckBox>
-                <Button Content="立即安装" Width="120" HorizontalAlignment="Center" Height="23" Click="btnSetup_Click"></Button>
+                <Button Content="立即安装" IsEnabled="{Binding CanInstall}" Width="120" HorizontalAlignment="Center" Height="23" Click="btnSetup_Click"></Button>
             </Grid>            
         </StackPanel>
         <StackPanel VerticalAlignment="Bottom" Height="100" Margin="0,0,0,10" Orientation="Vertical" Visibility="{Binding Visibility[UnInstall]}">

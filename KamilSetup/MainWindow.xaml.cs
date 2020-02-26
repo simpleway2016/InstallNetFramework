@@ -36,7 +36,7 @@ namespace PandaAudioSetup
             this.Topmost = true;
             this.Loaded += MainWindow_Loaded;
             this.DataContext = _data = new Model();
-            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt"))
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt") && System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
             {
                 var content = System.IO.File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", System.Text.Encoding.UTF8);
                 _currentAppZipVersion = new Version(content);
@@ -317,6 +317,8 @@ namespace PandaAudioSetup
         static string VersionHistoryUrl;
         async void CheckVersion()
         {
+            _data.CanInstall = false;
+
             bool downloadNoAsk = true;
             //if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
             //{
@@ -374,7 +376,7 @@ namespace PandaAudioSetup
                             _currentAppZipVersion = serverVersion;
                             System.IO.File.WriteAllText($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt", _currentAppZipVersion.ToString(), System.Text.Encoding.UTF8);
 
-                            MessageBox.Show(this, "新版本下载完毕，请继续安装！", "", MessageBoxButton.OK, MessageBoxImage.Information);
+
                         }
                         catch (Exception ex)
                         {
@@ -388,9 +390,17 @@ namespace PandaAudioSetup
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
+               
+            }
+            finally
+            {
+                if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.txt") && System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip"))
+                {
+                    _data.CanInstall = true;
+                }
             }
         }
 
@@ -543,6 +553,22 @@ namespace PandaAudioSetup
                 }
             }
         }
+
+
+        private bool _CanInstall;
+        public bool CanInstall
+        {
+            get => _CanInstall;
+            set
+            {
+                if (_CanInstall != value)
+                {
+                    _CanInstall = value;
+                    this.OnChange("CanInstall");
+                }
+            }
+        }
+
         Status _CurrentStatus = Status.None;
         public Status CurrentStatus
         {
