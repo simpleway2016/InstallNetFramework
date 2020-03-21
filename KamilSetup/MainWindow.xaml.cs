@@ -205,8 +205,13 @@ namespace PandaAudioSetup
 
                     if (DevConHelper.ListInstalledDrivers(DriverClass.Media).Any(m => m.Name.Contains("Monster Audio")) == false)
                     {
-                        _data.SetupingTitle = "正在安装虚拟声卡驱动...";
+                        _data.SetupingTitle = "即将安装虚拟声卡驱动...";
 
+                        this.Dispatcher.Invoke(()=> {
+                            MessageBox.Show(this, "即将安装虚拟声卡驱动，由于部分用户反应此步骤会重启windows，所以这里特意提醒，请先保存手头上的工作。\r\n如果系统重启，表示驱动安装失败，需要重新执行一遍安装程序。\r\n\r\n点击【确定】按钮继续安装");
+                        });
+
+                        _data.SetupingTitle = "正在安装虚拟声卡驱动...";
                         DevConHelper.InstallDriver($"{_data.Folder}\\driver\\{driverFolderName}\\monster.inf", "*MonsterVA");                        
                     }
 
