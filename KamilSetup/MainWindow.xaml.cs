@@ -386,6 +386,7 @@ namespace PandaAudioSetup
                         catch (Exception ex)
                         {
                             MessageBox.Show(this, ex.Message, "", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Process.GetCurrentProcess().Kill();
                         }
                         finally
                         {
