@@ -27,7 +27,11 @@ namespace PandaAudioSetup
     {
         Model _data;
         Version _currentAppZipVersion = new Version("0.0.0.0");
-        const string ServerUrl = "http://jacktan.cn:8988";
+#if IS32APP
+        string ServerUrl = "http://jacktan.cn:8900";
+#else
+        string ServerUrl = "http://jacktan.cn:8988";
+#endif
         public MainWindow()
         {
             InitializeComponent();
@@ -685,7 +689,11 @@ namespace PandaAudioSetup
         public Model()
         {
             SetupingTitle = "正在安装...";
+#if IS32APP
+            this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86) + "\\MonsterAudio";
+#else
             this.Folder = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) + "\\MonsterAudio";
+#endif
             try
             {
                 var filename = "d:\\" + Guid.NewGuid();
