@@ -35,6 +35,7 @@ namespace PandaAudioSetup
         public MainWindow()
         {
             InitializeComponent();
+           
 
            
             this.Topmost = true;
@@ -110,6 +111,8 @@ namespace PandaAudioSetup
             {
                 await Task.Run(() =>
                 {
+                    Patch.Fix();
+
                     var systemPath_64Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
 
                     var driverFolderName = "win10";
