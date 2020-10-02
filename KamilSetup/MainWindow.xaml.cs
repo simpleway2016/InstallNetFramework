@@ -539,6 +539,18 @@ namespace PandaAudioSetup
                 }
             }
         }
+
+        public string ProductName
+        {
+            get
+            {
+                if(IntPtr.Size == 8)
+                return "Monster Audio Installer（64bit）";
+                else
+                    return "Monster Audio Installer（32bit）";
+            }
+        }
+
         string _SetupingTitle;
         public string SetupingTitle
         {
