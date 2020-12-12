@@ -115,7 +115,7 @@ namespace PandaAudioSetup
                     var systemPath_64Bit = System.Environment.GetFolderPath(Environment.SpecialFolder.System);
 
                     var driverFolderName = "win10";
-                    if( string2Double( System.Environment.OSVersion.Version.ToString()) < 6.2)
+                    if(System.Environment.OSVersion.Version < new Version("6.2"))
                     {
                         driverFolderName = "win7";
                     }
