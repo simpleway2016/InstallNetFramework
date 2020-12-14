@@ -330,11 +330,11 @@ namespace PandaAudioSetup
         {
             _data.CanInstall = false;
 
-            bool downloadNoAsk = true;
-            //if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
-            //{
-            //    downloadNoAsk = true;
-            //}
+            bool downloadNoAsk = false;
+            if (System.IO.File.Exists($"{AppDomain.CurrentDomain.BaseDirectory}data\\app.zip") == false)
+            {
+                downloadNoAsk = true;
+            }
             try
             {
                 System.Net.WebClient client = new System.Net.WebClient();
@@ -358,7 +358,7 @@ namespace PandaAudioSetup
                 var serverVersion = new Version(Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(versionFileContent)["version"]);
                 if (_data.CurrentStatus == Model.Status.None && serverVersion > _currentAppZipVersion)
                 {
-                    if (downloadNoAsk || MessageBox.Show(this, "官网已经发布新的软件版本，是否现在把安装包更新为新版本?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (downloadNoAsk)
                     {
                         try
                         {
